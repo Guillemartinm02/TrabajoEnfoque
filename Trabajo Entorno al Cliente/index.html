@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Citas - DavanteDent</title>
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>  
+    <div class="container">
+        <header>
+            <h1>Gestión de Citas Dentales</h1>
+        </header>
+
+        <form id="citaForm">
+            <input type="hidden" id="currentId" value="">
+
+            <div class="form-grid">
+                <div>
+                    <label for="dia">Día</label>
+                    <input type="number" id="dia" min="1" max="31" required>
+                    <div class="error-msg" id="diaError">Día inválido (1-31)</div>
+                </div>
+                <div>
+                    <label for="mes">Mes</label>
+                    <input type="number" id="mes" min="1" max="12" required>
+                    <div class="error-msg" id="mesError">Mes inválido (1-12)</div>
+                </div>
+                <div>
+                    <label for="ano">Año</label>
+                    <input type="number" id="ano" min="2020" required>
+                    <div class="error-msg" id="anoError">Año requerido</div>
+                </div>
+                <div>
+                    <label for="hora">Hora</label>
+                    <input type="number" id="hora" min="0" max="23" required>
+                    <div class="error-msg" id="horaError">Hora inválida (0-23)</div>
+                </div>
+                <div>
+                    <label for="minuto">Minuto</label>
+                    <input type="number" id="minuto" min="0" max="59" step="1" required>
+                    <div class="error-msg" id="minutoError">Minuto inválido (0-59)</div>
+                </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 20px;">
+                <div>
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" required>
+                    <div class="error-msg" id="nombreError">Nombre requerido</div>
+                </div>
+                <div>
+                    <label for="apellidos">Apellidos</label>
+                    <input type="text" id="apellidos" required>
+                    <div class="error-msg" id="apellidosError">Apellidos requeridos</div>
+                </div>
+                <div>
+                    <label for="dni">DNI</label>
+                    <input type="text" id="dni" required>
+                    <div class="error-msg" id="dniError">DNI requerido</div>
+                </div>
+                <div>
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" id="telefono" required>
+                    <div class="error-msg" id="telefonoError">Teléfono debe contener solo números</div>
+                </div>
+                <div>
+                    <label for="fechaNac">Fecha Nacimiento (DD/MM/AAAA)</label>
+                    <input type="text" id="fechaNac" placeholder="Ej: 15/03/1985" required>
+                    <div class="error-msg" id="fechaNacError">Formato inválido (DD/MM/AAAA)</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" rows="3"></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn">Guardar Cita</button>
+        </form>
+
+        <table id="citasTable">
+            <thead>
+                <tr>
+                    <th>Orden</th>
+                    <th>Fecha y Hora</th>
+                    <th>Nombre Completo</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>F. Nacimiento</th>
+                    <th>Observaciones</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Las citas se cargarán aquí -->
+            </tbody>
+        </table>
+
+        <footer>
+            <p>Clínica DavanteDent | Tel: 900 123 456 | Email: info@davantedent.es | Dirección: Calle Salud 45, Madrid</p>
+        </footer>
+    </div>
+
+    <script>
+        class Cita {
+            constructor(id, fecha, paciente, observaciones) {
+                this.id = id;
+                this.fecha = fecha;
+                this.paciente = paciente;
+                this.observaciones = observaciones || '';
+            }
+        }
+
+        const STORAGE_KEY = 'citas_davantedent';
+        const form = document.getElementById('citaForm');
+        const tableBody = document.querySelector('#citasTable tbody');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function getCitas() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveCitas(citas) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(citas));
+        }
+
+        function validateForm() {
+            let valid = true;
+            const fields = [
+                {id: 'dia', msg: 'diaError', check: v => v >= 1 && v <= 31},
+                {id: 'mes', msg: 'mesError', check: v => v >= 1 && v <= 12},
+                {id: 'ano', msg: 'anoError', check: v => v >= 1900},
+                {id: 'hora', msg: 'horaError', check: v => v >= 0 && v <= 23},
+                {id: 'minuto', msg: 'minutoError', check: v => v >= 0 && v <= 59},
+                {id: 'nombre', msg: 'nombreError', check: v => v.trim().length > 0},
+                {id: 'apellidos', msg: 'apellidosError', check: v => v.trim().length > 0},
+                {id: 'dni', msg: 'dniError', check: v => v.trim().length > 0},
+                {id: 'telefono', msg: 'telefonoError', check: v => /^\d+$/.test(v.trim())},
+                {id: 'fechaNac', msg: 'fechaNacError', check: v => /^\d{2}\/\d{2}\/\d{4}$/.test(v.trim())}
+            ];
+
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const error = document.getElementById(field.msg);
+                input.classList.remove('error');
+                error.style.display = 'none';
+
+                const value = input.value.trim();
+                if (!field.check(value)) {
+                    input.classList.add('error');
+                    error.style.display = 'block';
+                    valid = false;
+                }
+            });
+
+            return valid;
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+            document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+        }
+
+        function loadForm(cita) {
+            document.getElementById('currentId').value = cita.id;
+            document.getElementById('dia').value = cita.fecha.dia;
+            document.getElementById('mes').value = cita.fecha.mes;
+            document.getElementById('ano').value = cita.fecha.ano;
+            document.getElementById('hora').value = cita.fecha.hora;
+            document.getElementById('minuto').value = cita.fecha.minuto.padStart(2, '0');
+            document.getElementById('nombre').value = cita.paciente.nombre;
+            document.getElementById('apellidos').value = cita.paciente.apellidos;
+            document.getElementById('dni').value = cita.paciente.dni;
+            document.getElementById('telefono').value = cita.paciente.telefono;
+            document.getElementById('fechaNac').value = cita.paciente.fechaNac;
+            document.getElementById('observaciones').value = cita.observaciones;
+            submitBtn.textContent = 'Actualizar Cita';
+        }
+
+        function clearForm() {
+            form.reset();
+            document.getElementById('currentId').value = '';
+            clearErrors();
+            submitBtn.textContent = 'Guardar Cita';
+        }
+
+        function renderTable() {
+            const citas = getCitas();
+            tableBody.innerHTML = '';
+
+            if (citas.length === 0) {
+                tableBody.innerHTML = '<tr class="empty-row"><td colspan="8">Dato vacío</td></tr>';
+                return;
+            }
+
+            citas.forEach((cita, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${cita.fecha.dia.toString().padStart(2,'0')}/${cita.fecha.mes.toString().padStart(2,'0')}/${cita.fecha.ano} 
+                        ${cita.fecha.hora.toString().padStart(2,'0')}:${cita.fecha.minuto.toString().padStart(2,'0')}</td>
+                    <td>${cita.paciente.nombre} ${cita.paciente.apellidos}</td>
+                    <td>${cita.paciente.dni}</td>
+                    <td>${cita.paciente.telefono}</td>
+                    <td>${cita.paciente.fechaNac}</td>
+                    <td>${cita.observaciones || '-'}</td>
+                    <td>
+                        <button class="edit" onclick="editCita('${cita.id}')">Modificar</button>
+                        <button class="delete" onclick="deleteCita('${cita.id}')">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Eventos
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            if (!validateForm()) return;
+
+            const id = document.getElementById('currentId').value || Date.now().toString();
+            const cita = new Cita(
+                id,
+                {
+                    dia: parseInt(document.getElementById('dia').value),
+                    mes: parseInt(document.getElementById('mes').value),
+                    ano: parseInt(document.getElementById('ano').value),
+                    hora: parseInt(document.getElementById('hora').value),
+                    minuto: document.getElementById('minuto').value.padStart(2, '0')
+                },
+                {
+                    nombre: document.getElementById('nombre').value.trim(),
+                    apellidos: document.getElementById('apellidos').value.trim(),
+                    dni: document.getElementById('dni').value.trim(),
+                    telefono: document.getElementById('telefono').value.trim(),
+                    fechaNac: document.getElementById('fechaNac').value.trim()
+                },
+                document.getElementById('observaciones').value.trim()
+            );
+
+            let citas = getCitas();
+            const index = citas.findIndex(c => c.id === id);
+
+            if (index >= 0) {
+                citas[index] = cita;
+            } else {
+                citas.push(cita);
+            }
+
+            saveCitas(citas);
+            clearForm();
+            renderTable();
+        });
+
+        window.editCita = function(id) {
+            const citas = getCitas();
+            const cita = citas.find(c => c.id === id);
+            if (cita) loadForm(cita);
+        };
+
+        window.deleteCita = function(id) {
+            if (confirm('¿Seguro que deseas eliminar esta cita?')) {
+                let citas = getCitas();
+                citas = citas.filter(c => c.id !== id);
+                saveCitas(citas);
+                renderTable();
+            }
+        };
+
+        // Carga inicial
+        renderTable();
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: #0c6eab;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+        }
+        header h1 {
+            margin: 10px 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        form {
+            background: #f9fbff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #d0e1f9;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        input.error, textarea.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.9em;
+            display: none;
+            margin-top: 5px;
+        }
+        button {
+            background-color: #0c6eab;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #095a8f;
+        }
+        button.delete {
+            background-color: #e74c3c;
+        }
+        button.delete:hover {
+            background-color: #c0392b;
+        }
+        button.edit {
+            background-color: #f39c12;
+            margin-right: 8px;
+        }
+        button.edit:hover {
+            background-color: #e67e22;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #0c6eab;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background-color: #f5f9ff;
+        }
+        .empty-row {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 40px !important;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
